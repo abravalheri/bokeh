@@ -1,7 +1,7 @@
 import {InspectTool, InspectToolView} from "./inspect_tool"
 import {CustomJSHover} from "./customjs_hover"
 import {CallbackLike1} from "../../callbacks/callback"
-import {Tooltip, TooltipView} from "../../annotations/tooltip"
+import {Tooltip, TooltipView} from "../../ui/tooltip"
 import {Renderer} from "../../renderers/renderer"
 import {GlyphRenderer} from "../../renderers/glyph_renderer"
 import {GraphRenderer} from "../../renderers/graph_renderer"
@@ -21,6 +21,7 @@ import {color2hex, color2css} from "core/util/color"
 import {is_empty} from "core/util/object"
 import {enumerate} from "core/util/iterator"
 import {isString, isFunction, isNumber} from "core/util/types"
+import {assert} from "core/util/assert"
 import {build_view, build_views, remove_views} from "core/build_views"
 import {HoverMode, PointPolicy, LinePolicy, Anchor, TooltipAttachment, MutedPolicy} from "core/enums"
 import {Geometry, PointGeometry, SpanGeometry, GeometryData} from "core/geometry"
@@ -85,7 +86,7 @@ export class HoverToolView extends InspectToolView {
 
     const {tooltips} = this.model
     if (tooltips instanceof Template) {
-      this._template_view = await build_view(tooltips, {parent: this})
+      this._template_view = await build_view(tooltips, {parent: this.plot_view})
       this._template_view.render()
     }
   }
@@ -113,9 +114,13 @@ export class HoverToolView extends InspectToolView {
     if (tooltips != null) {
       for (const r of this.computed_renderers) {
         const tooltip = new Tooltip({
-          custom: isString(tooltips) || isFunction(tooltips),
+          content: document.createElement("div"),
           attachment: this.model.attachment,
           show_arrow: this.model.show_arrow,
+          interactive: false,
+          visible: true,
+          position: null,
+          target: this.parent.canvas.overlays_el,
         })
 
         if (r instanceof GlyphRenderer) {
@@ -433,7 +438,8 @@ export class HoverToolView extends InspectToolView {
       tooltip.clear()
     else {
       const {content} = tooltip
-      empty(tooltip.content)
+      assert(content instanceof Element)
+      empty(content)
       for (const [,, node] of tooltips) {
         if (node != null)
           content.appendChild(node)
