@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 #-----------------------------------------------------------------------------
 
 # Standard library imports
-import types
+#import types
 from importlib import import_module
 from typing import (
     Any,
@@ -37,7 +37,7 @@ from typing import (
 # Bokeh imports
 from ..has_props import HasProps
 from ..serialization import Serializable
-from ._sphinx import model_link, property_link, register_type_link
+#from ._sphinx import model_link, property_link, register_type_link
 from .bases import Init, Property
 from .singletons import Undefined
 
@@ -158,6 +158,8 @@ class InstanceDefault(Generic[I]):
 # Code
 #-----------------------------------------------------------------------------
 
+# XXX: this makes lazy Instance() resolve eagerly
+"""
 @register_type_link(Instance)
 def _sphinx_type_link(obj: Instance[Any]) -> str:
     # Sphinx links may be generated during docstring processing which means
@@ -170,3 +172,4 @@ def _sphinx_type_link(obj: Instance[Any]) -> str:
     model = obj.instance_type
     model_name = f"{model.__module__}.{model.__name__}"
     return f"{property_link(obj)}({model_link(model_name)})"
+"""
